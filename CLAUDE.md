@@ -5,8 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 A single Dockerfile that layers GNU libc (glibc) onto an otherwise musl-only
-Alpine base, and sets `C.UTF-8` as the default locale. The whole repo is the
-`Dockerfile` — no app code, no README, no CI.
+Alpine base, and sets `C.UTF-8` as the default locale. There is no app code; the
+repo is the `Dockerfile` plus a GHCR publish workflow.
 
 ## Base image dependency (cross-repo)
 
@@ -54,6 +54,16 @@ docker run --rm alpine-glibc:test /usr/glibc-compat/bin/ldd --version
 docker run --rm alpine-glibc:test sh -c 'echo $LANG'
 docker run --rm alpine-glibc:test cat /etc/alpine-release
 ```
+
+## CI / publishing
+
+`.github/workflows/publish.yml` builds and publishes to
+`ghcr.io/liskl/alpine-glibc`. It pushes on push to `master`, on `v*` tags, and on
+manual dispatch; pull requests build only (no push) as a CI check. The image is
+tagged with the glibc version greped from the Dockerfile
+(`ALPINE_GLIBC_PACKAGE_VERSION`), plus `latest` (default branch only), the git
+tag for `v*` pushes, and a short commit SHA. Auth uses the built-in
+`GITHUB_TOKEN`. Build platform is `linux/amd64` only.
 
 ## Bumping glibc
 
